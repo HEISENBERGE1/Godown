@@ -8,7 +8,13 @@ const crypto = require("crypto");
 
 const app = express();
 app.use(express.json());
-app.use(express.static(__dirname));
+
+const PUBLIC_ASSETS = ["style.css", "script.js"];
+PUBLIC_ASSETS.forEach((file) => {
+  app.get(`/${file}`, (req, res) => res.sendFile(path.join(__dirname, file)));
+});
+app.use("/logo", express.static(path.join(__dirname, "logo")));
+app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 function resolveYtDlp() {
   if (process.env.YTDLP_PATH && fs.existsSync(process.env.YTDLP_PATH)) {
@@ -30,26 +36,45 @@ const YTDLP = resolveYtDlp();
 const FFMPEG_DIR = path.join(__dirname, "node_modules", "ffmpeg-static");
 const JOBS_ROOT = path.join(os.tmpdir(), "godown-jobs");
 
-const YT_HOSTS = new Set([
+const MEDIA_HOSTS = new Set([
   "youtube.com",
   "www.youtube.com",
   "youtu.be",
   "m.youtube.com",
-  "music.youtube.com"
+  "music.youtube.com",
+  "x.com",
+  "www.x.com",
+  "mobile.x.com",
+  "v.x.com",
+  "twitter.com",
+  "www.twitter.com",
+  "mobile.twitter.com",
+  "instagram.com",
+  "www.instagram.com",
+  "m.instagram.com",
+  "instagr.am"
 ]);
 
 const jobs = new Map();
 
 function isValidUrl(str) {
   try {
-    return YT_HOSTS.has(new URL(str).hostname);
+    return MEDIA_HOSTS.has(new URL(str).hostname);
   } catch {
     return false;
   }
 }
 
 function baseArgs() {
-  return ["--js-runtimes", "node", "--no-playlist", "--no-warnings", "--ffmpeg-location", FFMPEG_DIR];
+  const args = ["--js-runtimes", "node", "--no-playlist", "--no-warnings", "--ffmpeg-location", FFMPEG_DIR];
+
+  if (process.env.YTDLP_COOKIES_FILE) {
+    args.push("--cookies", process.env.YTDLP_COOKIES_FILE);
+  } else if (process.env.YTDLP_COOKIES_FROM_BROWSER) {
+    args.push("--cookies-from-browser", process.env.YTDLP_COOKIES_FROM_BROWSER);
+  }
+
+  return args;
 }
 
 function runYtDlpJson(url) {

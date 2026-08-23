@@ -49,17 +49,28 @@ function showToast(message, type = "info") {
   }, 3400);
 }
 
-function parseYouTubeUrl(value) {
+function parseMediaUrl(value) {
   try {
     const u = new URL(value.trim());
-    if (u.hostname === "youtu.be") {
+    const host = u.hostname.replace(/^www\./, "");
+
+    if (host === "youtu.be") {
       const id = u.pathname.slice(1);
       return id ? `https://www.youtube.com/watch?v=${id}` : null;
     }
-    if (/youtube\.com$/.test(u.hostname.replace(/^(www|m|music)\./, ""))) {
+    if (/^(m\.|music\.)?youtube\.com$/.test(host)) {
       if (u.pathname === "/watch") return `https://www.youtube.com${u.pathname}${u.search}`;
       const m = u.pathname.match(/^\/(shorts|embed|live)\/([\w-]{11})/);
       if (m) return `https://www.youtube.com/watch?v=${m[2]}`;
+      return null;
+    }
+    if (["x.com", "twitter.com", "mobile.x.com", "mobile.twitter.com", "v.x.com"].includes(host)) {
+      return /\/status\/\d+/.test(u.pathname) ? `https://x.com${u.pathname}` : null;
+    }
+    if (["instagram.com", "m.instagram.com", "instagr.am"].includes(host)) {
+      const m = u.pathname.match(/^\/(p|reel|reels|tv)\/([\w-]+)/);
+      if (m) return `https://www.instagram.com/${m[1]}/${m[2]}`;
+      return null;
     }
     return null;
   } catch {
@@ -109,9 +120,15 @@ function formatBytes(bytes) {
 }
 
 function estimateBytes(kind, height) {
+  if (!currentVideo.lengthSec) return 0;
   if (kind === "mp3") return (currentVideo.lengthSec * 192 * 1024) / 8;
   const mbps = BITRATE_MBPS[height] || 1.5;
   return (currentVideo.lengthSec * mbps * 1048576) / 8;
+}
+
+function sizeSuffix(kind, height) {
+  const bytes = estimateBytes(kind, height);
+  return bytes ? ` · approx ${formatBytes(bytes)}` : "";
 }
 
 function curateHeights(heights) {
@@ -143,7 +160,7 @@ function renderFormats() {
     height: h,
     name: `${h}p`,
     badge: QUALITY_NAMES[h] || "",
-    sub: `Video · MP4 · approx ${formatBytes(estimateBytes("mp4", h))}`
+    sub: `Video · MP4${sizeSuffix("mp4", h)}`
   }));
 
   if (currentVideo.hasAudio) {
@@ -152,7 +169,7 @@ function renderFormats() {
       height: null,
       name: "MP3",
       badge: "Audio only",
-      sub: `Sound · MP3 · approx ${formatBytes(estimateBytes("mp3"))}`
+      sub: `Sound · MP3${sizeSuffix("mp3")}`
     });
   }
 
@@ -212,9 +229,9 @@ async function handleGetVideo(e) {
   e.preventDefault();
   clearError();
 
-  const canonical = parseYouTubeUrl(urlInput.value);
+  const canonical = parseMediaUrl(urlInput.value);
   if (!canonical) {
-    return showError("That doesn't look like a valid YouTube URL. Try a link like youtube.com/watch?v=…");
+    return showError("That doesn't look like a valid YouTube, X or Instagram link.");
   }
 
   setFetching(true);
@@ -237,6 +254,7 @@ async function handleGetVideo(e) {
     viewsSep.hidden = byline.length < 2;
     viewsLabel.textContent = byline[1] || "";
     durationBadge.textContent = formatDuration(data.lengthSec);
+    durationBadge.hidden = !data.lengthSec;
 
     successBox.hidden = true;
     progressWrap.hidden = true;

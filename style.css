@@ -159,12 +159,29 @@ body {
 .brand-logo {
   display: grid;
   place-items: center;
-  width: 34px;
-  height: 34px;
-  border-radius: 11px;
-  color: #fff;
-  background: linear-gradient(135deg, var(--accent), #ff5c39);
-  box-shadow: 0 6px 16px color-mix(in srgb, var(--accent) 40%, transparent);
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+[data-theme="light"] .brand-logo {
+  background: #0a0a0c;
+  border: 1px solid var(--border);
+}
+
+.brand-logo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .brand em {

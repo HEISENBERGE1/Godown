@@ -7,6 +7,10 @@ yarn-error.log*
 .env
 .env.*
 
+cookies.txt
+*.cookies
+bin/
+
 Thumbs.db
 .DS_Store
 desktop.ini

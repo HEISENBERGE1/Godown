@@ -12,26 +12,26 @@
   --border-strong: rgba(255, 255, 255, 0.16);
   --text: #f5f2f4;
   --text-dim: #a89ea6;
-  --accent: #ff2e4d;
-  --accent-soft: rgba(255, 46, 77, 0.14);
+  --accent: #ec4899;
+  --accent-soft: rgba(236, 72, 153, 0.15);
   --success: #34d399;
   --danger: #f87171;
-  --shadow: 0 20px 60px rgba(20, 0, 8, 0.55);
+  --shadow: 0 20px 60px rgba(24, 0, 20, 0.55);
   --radius: 16px;
   --radius-sm: 10px;
 }
 
 [data-theme="light"] {
-  --bg: #fdf4f6;
+  --bg: #fbf4fa;
   --surface: #ffffff;
-  --surface-2: #f8eef1;
-  --border: rgba(120, 20, 40, 0.1);
-  --border-strong: rgba(120, 20, 40, 0.2);
-  --text: #1d1216;
-  --text-dim: #7a6670;
-  --accent: #e11d48;
-  --accent-soft: rgba(225, 29, 72, 0.1);
-  --shadow: 0 20px 50px rgba(120, 10, 35, 0.14);
+  --surface-2: #f6eef6;
+  --border: rgba(88, 28, 100, 0.1);
+  --border-strong: rgba(88, 28, 100, 0.2);
+  --text: #1c1220;
+  --text-dim: #776879;
+  --accent: #db2777;
+  --accent-soft: rgba(219, 39, 119, 0.1);
+  --shadow: 0 20px 50px rgba(90, 10, 70, 0.14);
 }
 
 html {
@@ -41,9 +41,9 @@ html {
 body {
   font-family: "Inter", system-ui, -apple-system, sans-serif;
   background:
-    radial-gradient(1100px 540px at 50% -8%, rgba(255, 46, 77, 0.24), transparent 62%),
-    radial-gradient(900px 500px at 90% 14%, rgba(255, 92, 57, 0.12), transparent 60%),
-    radial-gradient(800px 600px at -10% 100%, rgba(190, 18, 60, 0.16), transparent 62%),
+    radial-gradient(1100px 540px at 50% -8%, rgba(168, 85, 247, 0.22), transparent 62%),
+    radial-gradient(900px 500px at 90% 14%, rgba(236, 72, 153, 0.13), transparent 60%),
+    radial-gradient(800px 600px at -10% 100%, rgba(124, 58, 237, 0.15), transparent 62%),
     var(--bg);
   background-attachment: fixed;
   color: var(--text);
@@ -55,8 +55,8 @@ body {
 
 [data-theme="light"] body {
   background:
-    radial-gradient(1100px 540px at 50% -8%, rgba(225, 29, 72, 0.13), transparent 62%),
-    radial-gradient(900px 500px at 90% 14%, rgba(255, 92, 57, 0.08), transparent 60%),
+    radial-gradient(1100px 540px at 50% -8%, rgba(168, 85, 247, 0.12), transparent 62%),
+    radial-gradient(900px 500px at 90% 14%, rgba(236, 72, 153, 0.09), transparent 60%),
     var(--bg);
   background-attachment: fixed;
 }
@@ -105,7 +105,7 @@ body {
   top: -240px;
   left: 50%;
   transform: translateX(-60%);
-  background: radial-gradient(circle, #ff2e4d 0%, transparent 62%);
+  background: radial-gradient(circle, #a855f7 0%, transparent 62%);
   animation: drift 14s ease-in-out infinite alternate;
 }
 
@@ -116,7 +116,7 @@ body {
   left: -160px;
   top: auto;
   right: auto;
-  background: radial-gradient(circle, #ff5c39 0%, transparent 62%);
+  background: radial-gradient(circle, #ec4899 0%, transparent 62%);
   opacity: 0.35;
   animation: drift 18s ease-in-out infinite alternate-reverse;
 }
@@ -256,12 +256,24 @@ body {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.18);
 }
 
-.platform-btn.yt { color: #ff3347; }
 .platform-btn.ig { color: #e1306c; }
 
-.platform-btn.x {
+.platform-btn.x { color: var(--text-dim); }
+.platform-btn.x svg { color: var(--text); }
+
+.platform-btn[aria-pressed="true"] {
+  background: var(--surface-2);
+  border-color: currentColor;
+}
+
+.platform-btn.ig[aria-pressed="true"] {
+  border-color: rgba(225, 48, 108, 0.55);
+  color: #e1306c;
+}
+
+.platform-btn.x[aria-pressed="true"] {
+  border-color: var(--border-strong);
   color: var(--text);
-  padding: 9px 12px;
 }
 
 .hero h1 {
@@ -273,7 +285,7 @@ body {
 }
 
 .grad {
-  background: linear-gradient(92deg, var(--accent), #ff8a5c);
+  background: linear-gradient(92deg, #a855f7, #ec4899);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -314,6 +326,27 @@ body {
   left: 14px;
   color: var(--text-dim);
   pointer-events: none;
+}
+
+.icon-x,
+.icon-ig { display: none; }
+
+#dlForm[data-platform="x"] .icon-link,
+#dlForm[data-platform="instagram"] .icon-link { display: none; }
+
+#dlForm[data-platform="x"] .icon-x {
+  display: block;
+  color: var(--text);
+}
+
+#dlForm[data-platform="instagram"] .icon-ig {
+  display: block;
+  color: #e1306c;
+}
+
+#dlForm[data-platform="instagram"] .input-wrap input:focus {
+  border-color: #e1306c;
+  box-shadow: 0 0 0 3px rgba(225, 48, 108, 0.16);
 }
 
 .input-wrap input {
@@ -370,7 +403,7 @@ body {
   font-size: 15px;
   font-weight: 600;
   color: #fff;
-  background: linear-gradient(135deg, var(--accent), #ff5c39);
+  background: linear-gradient(135deg, #a855f7, #ec4899);
   border: none;
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -446,6 +479,7 @@ body {
   overflow: hidden;
   background: var(--surface-2);
   border: 1px solid var(--border);
+  transition: aspect-ratio 0.3s ease;
 }
 
 .thumb img {
@@ -600,7 +634,7 @@ body {
   height: 100%;
   width: 0%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--accent), #ff8a5c);
+  background: linear-gradient(90deg, #a855f7, #ec4899);
   transition: width 0.4s ease-out;
 }
 

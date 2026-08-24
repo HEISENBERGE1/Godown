@@ -1,15 +1,17 @@
 {
   "name": "godown",
   "version": "1.0.0",
-  "description": "Web UI + Node server to download YouTube videos and audio (MP4/MP3) powered by yt-dlp and ffmpeg.",
+  "description": "Web UI + Node server to download X (Twitter) and Instagram videos and audio (MP4/MP3) powered by yt-dlp and ffmpeg.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
     "postinstall": "node scripts/fetch-ytdlp.js"
   },
   "keywords": [
-    "youtube",
     "downloader",
+    "x",
+    "twitter",
+    "instagram",
     "yt-dlp",
     "mp4",
     "mp3"

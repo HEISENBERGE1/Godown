@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="GoDown — a clean, fast YouTube video downloader demo. Paste a link, pick a format, download.">
-  <title>GoDown · YouTube Video Downloader</title>
+  <meta name="description" content="GoDown — paste an X (Twitter) or Instagram link, preview it and download the video as MP4 or audio as MP3. Fast, clean, free.">
+  <title>GoDown · X &amp; Instagram Video Downloader</title>
   <link rel="icon" type="image/png" href="logo/logo-cropped.png">
   <link rel="stylesheet" href="style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -36,20 +36,17 @@
 
   <header class="hero container">
     <div class="platform-row">
-      <button type="button" class="platform-btn yt" data-platform="youtube">
-        <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor" aria-hidden="true"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4L15.8 12z"/></svg>
-        YouTube
-      </button>
-      <button type="button" class="platform-btn x" data-platform="x" aria-label="X">
+      <button type="button" class="platform-btn x" data-platform="x" aria-pressed="false">
         <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/></svg>
+        X (Twitter)
       </button>
-      <button type="button" class="platform-btn ig" data-platform="instagram">
+      <button type="button" class="platform-btn ig" data-platform="instagram" aria-pressed="false">
         <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="0.6" fill="currentColor"/></svg>
         Instagram
       </button>
     </div>
-    <h1>Download videos from <span class="grad">YouTube</span> in seconds</h1>
-    <p class="sub">Paste any link below, preview it instantly and save it as MP4 or MP3 — right in your browser.</p>
+    <h1>Save <span class="grad">X &amp; Instagram</span> videos in seconds</h1>
+    <p class="sub">Paste a link from X or Instagram, preview it instantly and download it as MP4 video or MP3 audio — right in your browser.</p>
   </header>
 
   <main class="container">
@@ -57,12 +54,18 @@
     <section class="downloader" aria-label="Video downloader">
       <form id="dlForm" class="url-box" novalidate>
         <div class="input-wrap">
-          <svg class="input-icon" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg class="input-icon icon-link" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.8 1.7"/>
             <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7L12.3 19"/>
           </svg>
-          <label for="urlInput" class="sr-only">YouTube URL</label>
-          <input type="url" id="urlInput" placeholder="Paste YouTube link here…" autocomplete="off" spellcheck="false" aria-describedby="urlError">
+          <svg class="input-icon icon-x" viewBox="0 0 24 24" width="15" height="15" fill="currentColor" aria-hidden="true">
+            <path d="M18.9 1.15h3.68l-8.04 9.19L24 22.85h-7.4l-5.8-7.58-6.64 7.58H.46l8.6-9.83L0 1.15h7.59l5.24 6.93zm-1.29 19.5h2.04L6.49 3.24H4.3z"/>
+          </svg>
+          <svg class="input-icon icon-ig" viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+            <rect x="2.5" y="2.5" width="19" height="19" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.3" cy="6.7" r="0.6" fill="currentColor"/>
+          </svg>
+          <label for="urlInput" class="sr-only">X or Instagram video link</label>
+          <input type="url" id="urlInput" placeholder="Paste an X or Instagram link here…" autocomplete="off" spellcheck="false" aria-describedby="urlError">
           <button type="button" id="pasteBtn" class="ghost-btn">Paste</button>
         </div>
         <button type="submit" id="getBtn" class="btn-primary">
@@ -74,8 +77,8 @@
 
       <section id="result" class="result" hidden aria-live="polite">
         <article class="video-card">
-          <figure class="thumb">
-            <img id="thumbImg" alt="YouTube video thumbnail" loading="lazy">
+          <figure class="thumb" id="thumbBox">
+            <img id="thumbImg" alt="Video thumbnail" loading="lazy">
             <figcaption id="durationBadge" class="thumb-badge"></figcaption>
           </figure>
           <div class="meta">
@@ -111,11 +114,11 @@
           <button type="button" id="againBtn" class="btn-outline">Convert another link</button>
         </div>
 
-        <p class="disclaimer">For personal &amp; educational use only — respect creators' rights and YouTube's Terms of Service.</p>
+        <p class="disclaimer">For personal &amp; educational use only — respect creators' rights and the terms of X and Instagram.</p>
       </section>
     </section>
 
-    <p class="search-hint">Download videos from YouTube, X and Instagram.</p>
+    <p class="search-hint">Works with x.com · twitter.com · instagram.com links</p>
 
   </main>
 

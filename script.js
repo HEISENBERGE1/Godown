@@ -24,6 +24,7 @@ const successBox = $("successBox");
 const fileNameEl = $("fileName");
 const againBtn = $("againBtn");
 const toasts = $("toasts");
+const thumbBox = $("thumbBox");
 
 async function apiFetch(url, opts = {}) {
   return fetch(url, opts);
@@ -58,16 +59,6 @@ function parseMediaUrl(value) {
     const u = new URL(value.trim());
     const host = u.hostname.replace(/^www\./, "");
 
-    if (host === "youtu.be") {
-      const id = u.pathname.slice(1);
-      return id ? `https://www.youtube.com/watch?v=${id}` : null;
-    }
-    if (/^(m\.|music\.)?youtube\.com$/.test(host)) {
-      if (u.pathname === "/watch") return `https://www.youtube.com${u.pathname}${u.search}`;
-      const m = u.pathname.match(/^\/(shorts|embed|live)\/([\w-]{11})/);
-      if (m) return `https://www.youtube.com/watch?v=${m[2]}`;
-      return null;
-    }
     if (["x.com", "twitter.com", "mobile.x.com", "mobile.twitter.com", "v.x.com"].includes(host)) {
       return /\/status\/\d+/.test(u.pathname) ? `https://x.com${u.pathname}` : null;
     }
@@ -80,6 +71,24 @@ function parseMediaUrl(value) {
   } catch {
     return null;
   }
+}
+
+function detectPlatform(value) {
+  try {
+    const host = new URL(value.trim()).hostname.replace(/^www\./, "");
+    if (["x.com", "twitter.com", "mobile.x.com", "mobile.twitter.com", "v.x.com"].includes(host)) return "x";
+    if (["instagram.com", "m.instagram.com", "instagr.am"].includes(host)) return "instagram";
+  } catch {}
+  return null;
+}
+
+const PLATFORM_LABELS = { x: "X", instagram: "Instagram" };
+
+function setPlatformUI(platform) {
+  form.dataset.platform = platform || "";
+  document.querySelectorAll(".platform-btn").forEach((btn) => {
+    btn.setAttribute("aria-pressed", String(btn.dataset.platform === platform));
+  });
 }
 
 function showError(message) {
@@ -235,8 +244,9 @@ async function handleGetVideo(e) {
 
   const canonical = parseMediaUrl(urlInput.value);
   if (!canonical) {
-    return showError("That doesn't look like a valid YouTube, X or Instagram link.");
+    return showError("That doesn't look like a valid X or Instagram link.");
   }
+  setPlatformUI(detectPlatform(canonical));
 
   setFetching(true);
 
@@ -249,9 +259,14 @@ async function handleGetVideo(e) {
 
     currentVideo = data;
 
-    thumbImg.style.display = "";
-    thumbImg.src = data.thumbnail || `https://i.ytimg.com/vi/${data.id}/hqdefault.jpg`;
+    if (data.thumbnail) {
+      thumbImg.src = data.thumbnail;
+      thumbImg.style.display = "";
+    } else {
+      thumbImg.style.display = "none";
+    }
     thumbImg.onerror = () => { thumbImg.style.display = "none"; };
+    thumbBox.style.aspectRatio = "";
     videoTitle.textContent = data.title;
     const byline = [data.author || "", formatViews(data.views)].filter(Boolean);
     channelName.textContent = byline[0] || "";
@@ -373,8 +388,18 @@ againBtn.addEventListener("click", () => {
   successBox.hidden = true;
   progressWrap.hidden = true;
   urlInput.value = "";
+  thumbBox.style.aspectRatio = "";
+  setPlatformUI(null);
   clearError();
   urlInput.focus();
+});
+
+thumbImg.addEventListener("load", () => {
+  const w = thumbImg.naturalWidth;
+  const h = thumbImg.naturalHeight;
+  if (!w || !h) return;
+  const ratio = Math.min(16 / 9, Math.max(9 / 16, w / h));
+  thumbBox.style.aspectRatio = ratio.toFixed(4);
 });
 
 pasteBtn.addEventListener("click", async () => {
@@ -393,6 +418,7 @@ pasteBtn.addEventListener("click", async () => {
 
 urlInput.addEventListener("input", () => {
   if (!fieldError.hidden) clearError();
+  setPlatformUI(detectPlatform(urlInput.value));
 });
 
 form.addEventListener("submit", handleGetVideo);
@@ -409,18 +435,18 @@ document.addEventListener("keydown", (e) => {
 });
 
 const PLATFORM_PLACEHOLDERS = {
-  youtube: "Paste a YouTube link here…",
   x: "Paste an X (Twitter) video link here…",
-  instagram: "Paste an Instagram link here…"
+  instagram: "Paste an Instagram video or reel link here…"
 };
 
 document.querySelectorAll(".platform-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     const platform = btn.dataset.platform;
     urlInput.placeholder = PLATFORM_PLACEHOLDERS[platform] || urlInput.placeholder;
+    setPlatformUI(platform);
     clearError();
     urlInput.focus();
-    showToast(`Ready to paste a ${platform === "x" ? "X" : platform[0].toUpperCase() + platform.slice(1)} link.`);
+    showToast(`Ready to paste a ${PLATFORM_LABELS[platform]} link.`);
   });
 });
 

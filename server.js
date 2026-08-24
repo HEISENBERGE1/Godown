@@ -15,6 +15,7 @@ PUBLIC_ASSETS.forEach((file) => {
 });
 app.use("/logo", express.static(path.join(__dirname, "logo")));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
+app.get("/health", (req, res) => res.json({ ok: true, uptime: process.uptime() }));
 
 function resolveYtDlp() {
   const bundled = path.join(__dirname, "bin", process.platform === "win32" ? "yt-dlp.exe" : "yt-dlp");
@@ -39,11 +40,6 @@ const FFMPEG_DIR = path.join(__dirname, "node_modules", "ffmpeg-static");
 const JOBS_ROOT = path.join(os.tmpdir(), "godown-jobs");
 
 const MEDIA_HOSTS = new Set([
-  "youtube.com",
-  "www.youtube.com",
-  "youtu.be",
-  "m.youtube.com",
-  "music.youtube.com",
   "x.com",
   "www.x.com",
   "mobile.x.com",
@@ -110,7 +106,7 @@ function runYtDlpJson(url) {
 app.get("/api/info", async (req, res) => {
   const url = req.query.url;
   if (!url || !isValidUrl(url)) {
-    return res.status(400).json({ error: "Please provide a valid YouTube URL." });
+    return res.status(400).json({ error: "Please provide a valid X or Instagram URL." });
   }
   try {
     const d = await runYtDlpJson(url);
@@ -158,7 +154,7 @@ function safeName(title) {
 app.post("/api/jobs", async (req, res) => {
   const { url, type = "mp4", height, title } = req.body || {};
   if (!url || !isValidUrl(url)) {
-    return res.status(400).json({ error: "Please provide a valid YouTube URL." });
+    return res.status(400).json({ error: "Please provide a valid X or Instagram URL." });
   }
 
   const dir = path.join(JOBS_ROOT, crypto.randomUUID());

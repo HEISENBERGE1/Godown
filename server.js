@@ -79,6 +79,12 @@ function baseArgs() {
   return args;
 }
 
+function ytdlpErrorText(errText) {
+  const lines = errText.split("\n").map((l) => l.trim()).filter(Boolean);
+  const last = lines.reverse().find((l) => /^(ERROR|WARNING)/i.test(l)) || lines[0];
+  return (last || "").replace(/^ERROR:\s*/i, "").slice(0, 200);
+}
+
 function runYtDlpJson(url) {
   return new Promise((resolve, reject) => {
     const proc = spawn(YTDLP, [...baseArgs(), "-J", url], { windowsHide: true });
@@ -91,9 +97,11 @@ function runYtDlpJson(url) {
     proc.on("close", () => {
       clearTimeout(timer);
       try {
-        resolve(JSON.parse(out));
+        const parsed = JSON.parse(out);
+        if (parsed && typeof parsed === "object") return resolve(parsed);
+        reject(new Error(ytdlpErrorText(err) || "yt-dlp returned no data for this URL."));
       } catch {
-        reject(new Error(err.split("\n").filter(Boolean).pop() || "Could not fetch video info."));
+        reject(new Error(ytdlpErrorText(err) || "Could not fetch video info."));
       }
     });
   });
@@ -106,10 +114,11 @@ app.get("/api/info", async (req, res) => {
   }
   try {
     const d = await runYtDlpJson(url);
+    const formats = Array.isArray(d.formats) ? d.formats : [];
 
     const heights = [
       ...new Set(
-        d.formats
+        formats
           .filter((f) => f.height && (f.vcodec !== "none"))
           .map((f) => f.height)
       )
@@ -117,7 +126,7 @@ app.get("/api/info", async (req, res) => {
 
     const audioBitrate = Math.max(
       0,
-      ...d.formats.filter((f) => f.acodec && f.acodec !== "none").map((f) => f.abr || 0)
+      ...formats.filter((f) => f.acodec && f.acodec !== "none").map((f) => f.abr || 0)
     );
 
     res.json({
@@ -128,7 +137,7 @@ app.get("/api/info", async (req, res) => {
       views: d.view_count,
       thumbnail: d.thumbnail,
       heights,
-      hasAudio: !!d.formats.some((f) => f.acodec && f.acodec !== "none"),
+      hasAudio: !!formats.some((f) => f.acodec && f.acodec !== "none"),
       live: !!d.is_live
     });
   } catch (e) {

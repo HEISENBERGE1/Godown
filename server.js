@@ -17,6 +17,8 @@ app.use("/logo", express.static(path.join(__dirname, "logo")));
 app.get("/", (req, res) => res.sendFile(path.join(__dirname, "index.html")));
 
 function resolveYtDlp() {
+  const bundled = path.join(__dirname, "bin", process.platform === "win32" ? "yt-dlp.exe" : "yt-dlp");
+  if (fs.existsSync(bundled)) return bundled;
   if (process.env.YTDLP_PATH && fs.existsSync(process.env.YTDLP_PATH)) {
     return process.env.YTDLP_PATH;
   }

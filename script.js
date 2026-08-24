@@ -25,6 +25,10 @@ const fileNameEl = $("fileName");
 const againBtn = $("againBtn");
 const toasts = $("toasts");
 
+async function apiFetch(url, opts = {}) {
+  return fetch(url, opts);
+}
+
 let currentVideo = null;
 let selectedKind = "mp4";
 let selectedHeight = null;
@@ -237,7 +241,7 @@ async function handleGetVideo(e) {
   setFetching(true);
 
   try {
-    const resp = await fetch(`/api/info?url=${encodeURIComponent(canonical)}`);
+    const resp = await apiFetch(`/api/info?url=${encodeURIComponent(canonical)}`);
     const data = await resp.json();
 
     if (!resp.ok) throw new Error(data.error || "Could not fetch video info.");
@@ -283,7 +287,7 @@ startDlBtn.addEventListener("click", async () => {
   setProgress(0, "Starting…");
 
   try {
-    const createResp = await fetch("/api/jobs", {
+    const createResp = await apiFetch("/api/jobs", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
@@ -334,7 +338,7 @@ function pollJob(id) {
     let lastPct = -1;
     const timer = setInterval(async () => {
       try {
-        const resp = await fetch(`/api/jobs/${id}`);
+        const resp = await apiFetch(`/api/jobs/${id}`);
         if (!resp.ok) {
           clearInterval(timer);
           return reject(new Error("Job lost on server."));

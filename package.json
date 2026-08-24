@@ -4,7 +4,8 @@
   "description": "Web UI + Node server to download YouTube videos and audio (MP4/MP3) powered by yt-dlp and ffmpeg.",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "postinstall": "node scripts/fetch-ytdlp.js"
   },
   "keywords": [
     "youtube",
